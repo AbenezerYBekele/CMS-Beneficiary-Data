@@ -1,0 +1,1016 @@
+{
+  "datasets": [
+    {
+      "name": "enrollment_by_year",
+      "displayName": "Enrollment by Year",
+      "config": {
+        "version": "1.1",
+        "source": "cms_beneficiary.gold.gold_enrollment_by_year",
+        "dimensions": [
+          {
+            "name": "_ref_year",
+            "expr": "_ref_year",
+            "displayName": "Year",
+            "comment": "Reference year for the enrollment data"
+          }
+        ],
+        "measures": [
+          {
+            "name": "beneficiaries",
+            "expr": "SUM(beneficiaries)",
+            "displayName": "Beneficiaries",
+            "comment": "Total number of Medicare beneficiaries"
+          },
+          {
+            "name": "avg_age",
+            "expr": "AVG(avg_age)",
+            "displayName": "Average Age",
+            "comment": "Average age of Medicare beneficiaries"
+          },
+          {
+            "displayName": "Deceased Percentage",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "deceased_pct",
+            "expr": "AVG(deceased_pct)",
+            "comment": "Percentage of deceased beneficiaries"
+          },
+          {
+            "displayName": "ESRD Percentage",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "esrd_pct",
+            "expr": "AVG(esrd_pct)",
+            "comment": "Percentage of beneficiaries with ESRD"
+          }
+        ]
+      }
+    },
+    {
+      "name": "plan_penetration",
+      "displayName": "Plan Penetration",
+      "config": {
+        "version": "1.1",
+        "source": "cms_beneficiary.gold.gold_ma_vs_ffs_penetration",
+        "dimensions": [
+          {
+            "name": "_ref_year",
+            "expr": "_ref_year",
+            "displayName": "Year",
+            "comment": "Reference year for the penetration data"
+          }
+        ],
+        "measures": [
+          {
+            "displayName": "MA Share",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "ma_share_pct",
+            "expr": "AVG(ma_share_pct)",
+            "comment": "Medicare Advantage share percentage"
+          },
+          {
+            "displayName": "HMO Share",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "hmo_share_pct",
+            "expr": "AVG(hmo_share_pct)",
+            "comment": "HMO share percentage"
+          },
+          {
+            "displayName": "Part D Share",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "partd_share_pct",
+            "expr": "AVG(partd_share_pct)",
+            "comment": "Part D share percentage"
+          }
+        ]
+      }
+    },
+    {
+      "name": "dual_eligible",
+      "displayName": "Dual Eligible Share",
+      "config": {
+        "version": "1.1",
+        "source": "cms_beneficiary.gold.gold_dual_eligible_share",
+        "dimensions": [
+          {
+            "name": "_ref_year",
+            "expr": "_ref_year",
+            "displayName": "Year",
+            "comment": "Reference year for the dual eligible data"
+          }
+        ],
+        "measures": [
+          {
+            "displayName": "Dual Eligible Share",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "dual_share_pct",
+            "expr": "AVG(dual_share_pct)",
+            "comment": "Percentage of dual eligible beneficiaries"
+          }
+        ]
+      }
+    },
+    {
+      "name": "hmo_vs_partd",
+      "displayName": "HMO vs Part D",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT _ref_year, 'HMO' AS metric_name, hmo_share_pct AS share_pct\nFROM cms_beneficiary.gold.gold_ma_vs_ffs_penetration\nUNION ALL\nSELECT _ref_year, 'Part D' AS metric_name, partd_share_pct AS share_pct\nFROM cms_beneficiary.gold.gold_ma_vs_ffs_penetration\n",
+        "dimensions": [
+          {
+            "name": "_ref_year",
+            "expr": "_ref_year",
+            "displayName": "Year",
+            "comment": "Reference year"
+          },
+          {
+            "name": "metric_name",
+            "expr": "metric_name",
+            "displayName": "Metric",
+            "comment": "Metric type (HMO or Part D)"
+          }
+        ],
+        "measures": [
+          {
+            "displayName": "Share Percentage",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "share_pct",
+            "expr": "AVG(share_pct)",
+            "comment": "Share percentage for the metric"
+          }
+        ]
+      }
+    },
+    {
+      "name": "plan_contracts",
+      "displayName": "Top 10 Plan Contracts",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT ptc_contract_id, SUM(beneficiaries) AS beneficiaries\nFROM cms_beneficiary.gold.gold_plan_contracts\nGROUP BY ptc_contract_id\nORDER BY beneficiaries DESC\nLIMIT 10\n",
+        "dimensions": [
+          {
+            "name": "ptc_contract_id",
+            "expr": "ptc_contract_id",
+            "displayName": "Contract ID",
+            "comment": "Plan contract identifier"
+          }
+        ],
+        "measures": [
+          {
+            "name": "beneficiaries",
+            "expr": "SUM(beneficiaries)",
+            "displayName": "Beneficiaries",
+            "comment": "Total beneficiaries enrolled in the contract"
+          }
+        ]
+      }
+    },
+    {
+      "name": "state_kpis",
+      "displayName": "State KPIs",
+      "config": {
+        "version": "1.1",
+        "source": "cms_beneficiary.gold.gold_state_year_kpis",
+        "dimensions": [
+          {
+            "name": "STATE_CODE",
+            "expr": "STATE_CODE",
+            "displayName": "State Code",
+            "comment": "SSA state code for the beneficiary data"
+          },
+          {
+            "name": "STATE_NAME",
+            "expr": "CASE STATE_CODE\n  WHEN '01' THEN 'Alabama'\n  WHEN '02' THEN 'Alaska'\n  WHEN '03' THEN 'Arizona'\n  WHEN '04' THEN 'Arkansas'\n  WHEN '05' THEN 'California'\n  WHEN '06' THEN 'Colorado'\n  WHEN '07' THEN 'Connecticut'\n  WHEN '08' THEN 'Delaware'\n  WHEN '09' THEN 'District of Columbia'\n  WHEN '10' THEN 'Florida'\n  WHEN '11' THEN 'Georgia'\n  WHEN '12' THEN 'Idaho'\n  WHEN '13' THEN 'Illinois'\n  WHEN '14' THEN 'Indiana'\n  WHEN '15' THEN 'Iowa'\n  WHEN '16' THEN 'Kansas'\n  WHEN '17' THEN 'Kentucky'\n  WHEN '18' THEN 'Louisiana'\n  WHEN '19' THEN 'Maine'\n  WHEN '20' THEN 'Maryland'\n  WHEN '21' THEN 'Massachusetts'\n  WHEN '22' THEN 'Michigan'\n  WHEN '23' THEN 'Minnesota'\n  WHEN '24' THEN 'Mississippi'\n  WHEN '25' THEN 'Missouri'\n  WHEN '26' THEN 'Montana'\n  WHEN '27' THEN 'Nebraska'\n  WHEN '28' THEN 'Nevada'\n  WHEN '29' THEN 'New Hampshire'\n  WHEN '30' THEN 'New Jersey'\n  WHEN '31' THEN 'New Mexico'\n  WHEN '32' THEN 'New York'\n  WHEN '33' THEN 'North Carolina'\n  WHEN '34' THEN 'North Dakota'\n  WHEN '35' THEN 'Ohio'\n  WHEN '36' THEN 'Oklahoma'\n  WHEN '37' THEN 'Oregon'\n  WHEN '38' THEN 'Pennsylvania'\n  WHEN '39' THEN 'Rhode Island'\n  WHEN '40' THEN 'South Carolina'\n  WHEN '41' THEN 'South Dakota'\n  WHEN '42' THEN 'Tennessee'\n  WHEN '43' THEN 'Texas'\n  WHEN '44' THEN 'Utah'\n  WHEN '45' THEN 'Vermont'\n  WHEN '46' THEN 'Virginia'\n  WHEN '47' THEN 'Washington'\n  WHEN '48' THEN 'West Virginia'\n  WHEN '49' THEN 'Wisconsin'\n  WHEN '50' THEN 'Wyoming'\n  WHEN '51' THEN 'Puerto Rico'\n  WHEN '52' THEN 'Virgin Islands'\n  WHEN '53' THEN 'Guam'\n  WHEN '54' THEN 'American Samoa'\n  WHEN '55' THEN 'Northern Mariana Islands'\n  ELSE STATE_CODE\nEND",
+            "displayName": "State Name",
+            "comment": "Full state name derived from SSA state code"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_benes",
+            "expr": "SUM(total_benes)",
+            "displayName": "Total Beneficiaries",
+            "comment": "Total number of Medicare beneficiaries by state"
+          },
+          {
+            "displayName": "Dual Eligible Share",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "dual_share_pct",
+            "expr": "AVG(dual_share_pct)",
+            "comment": "Percentage of dual eligible beneficiaries by state"
+          },
+          {
+            "displayName": "MA Share",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 2.0
+              }
+            },
+            "name": "ma_share_pct",
+            "expr": "AVG(ma_share_pct)",
+            "comment": "Medicare Advantage share percentage by state"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "96a95c1a",
+      "displayName": "Executive Summary",
+      "layout": [
+        {
+          "widget": {
+            "name": "total_beneficiaries",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "enrollment_by_year",
+                  "fields": [
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(beneficiaries)",
+                      "expression": "MEASURE(`beneficiaries`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "`_ref_year`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Total Beneficiaries",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(beneficiaries)"
+                },
+                "period": {
+                  "fieldName": "_ref_year"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "avg_age",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "enrollment_by_year",
+                  "fields": [
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(avg_age)",
+                      "expression": "MEASURE(`avg_age`)"
+                    }
+                  ],
+                  "disaggregated": false,
+                  "orders": [
+                    {
+                      "direction": "DESC",
+                      "expression": "`_ref_year`"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Avg Age",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(avg_age)"
+                },
+                "period": {
+                  "fieldName": "_ref_year"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "enrollment_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "enrollment_by_year",
+                  "fields": [
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(beneficiaries)",
+                      "expression": "MEASURE(`beneficiaries`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Enrollment Trend"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(beneficiaries)",
+                  "displayName": "beneficiaries",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "esrd_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "enrollment_by_year",
+                  "fields": [
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(esrd_pct)",
+                      "expression": "MEASURE(`esrd_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "ESRD Trend"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(esrd_pct)",
+                  "displayName": "esrd_pct",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "0894b8b1",
+      "displayName": "Plan & Coverage",
+      "layout": [
+        {
+          "widget": {
+            "name": "ma_penetration",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "plan_penetration",
+                  "fields": [
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(ma_share_pct)",
+                      "expression": "MEASURE(`ma_share_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "MA Penetration"
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(ma_share_pct)",
+                  "displayName": "ma_share_pct",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "hmo_vs_partd",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "hmo_vs_partd",
+                  "fields": [
+                    {
+                      "name": "metric_name",
+                      "expression": "`metric_name`"
+                    },
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(share_pct)",
+                      "expression": "MEASURE(`share_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "HMO vs Part D",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(share_pct)",
+                  "displayName": "share_pct",
+                  "scale": {
+                    "type": "quantitative",
+                    "domain": {
+                      "type": "custom",
+                      "min": 70
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "metric_name",
+                  "displayName": "metric_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "shape": {
+                  "fieldName": "metric_name",
+                  "displayName": "metric_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "dual_eligible_share",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "dual_eligible",
+                  "fields": [
+                    {
+                      "name": "_ref_year",
+                      "expression": "`_ref_year`"
+                    },
+                    {
+                      "name": "measure(dual_share_pct)",
+                      "expression": "MEASURE(`dual_share_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Dual Eligible Share"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(dual_share_pct)",
+                  "displayName": "dual_share_pct",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "_ref_year",
+                  "displayName": "_ref_year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "top_10_contracts",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "plan_contracts",
+                  "fields": [
+                    {
+                      "name": "ptc_contract_id",
+                      "expression": "`ptc_contract_id`"
+                    },
+                    {
+                      "name": "measure(beneficiaries)",
+                      "expression": "MEASURE(`beneficiaries`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Top 10 Contracts"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(beneficiaries)",
+                  "displayName": "beneficiaries",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "ptc_contract_id",
+                  "displayName": "ptc_contract_id",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "ptc_contract_id",
+                  "displayName": "ptc_contract_id",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 8,
+            "width": 6,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "519df439",
+      "displayName": "State-Level Insights",
+      "layout": [
+        {
+          "widget": {
+            "name": "state_enrollment_ranking",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "state_kpis",
+                  "fields": [
+                    {
+                      "name": "STATE_NAME",
+                      "expression": "`STATE_NAME`"
+                    },
+                    {
+                      "name": "measure(total_benes)",
+                      "expression": "MEASURE(`total_benes`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "State Enrollment Ranking",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(total_benes)",
+                  "displayName": "Total Beneficiaries",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "STATE_NAME",
+                  "displayName": "State Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "STATE_NAME",
+                  "displayName": "State Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "dual_share_by_state",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "state_kpis",
+                  "fields": [
+                    {
+                      "name": "STATE_NAME",
+                      "expression": "`STATE_NAME`"
+                    },
+                    {
+                      "name": "measure(dual_share_pct)",
+                      "expression": "MEASURE(`dual_share_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Dual Share by State",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(dual_share_pct)",
+                  "displayName": "Dual Eligible Share",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "STATE_NAME",
+                  "displayName": "State Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "STATE_NAME",
+                  "displayName": "State Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 6,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "ma_share_by_state",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "state_kpis",
+                  "fields": [
+                    {
+                      "name": "STATE_NAME",
+                      "expression": "`STATE_NAME`"
+                    },
+                    {
+                      "name": "measure(ma_share_pct)",
+                      "expression": "MEASURE(`ma_share_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "MA Share by State",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "measure(ma_share_pct)",
+                  "displayName": "MA Share",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "STATE_NAME",
+                  "displayName": "State Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "color": {
+                  "fieldName": "STATE_NAME",
+                  "displayName": "State Name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 12,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
