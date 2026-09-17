@@ -16,7 +16,7 @@
 - [Tech Stack](#-tech-stack)
 - [Project Structure](#-project-structure)
 - [Pipeline Layers](#-pipeline-layers)
-  - [Bronze Layer](#1-bronze-layer--raw-ingestion)
+  - [Bronze Layer](#Bronze-Layer-Cms.ipynb)
   - [Silver Layer](#2-silver-layer--cleansed--reshaped)
   - [Gold Layer](#3-gold-layer--business-kpis)
 - [Data Quality](#-data-quality)
