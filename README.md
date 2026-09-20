@@ -12,22 +12,10 @@
 ## 📌 Table of Contents
 
 - [Overview](#-overview)
-- [Architecture](#-architecture)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
 - [Pipeline Layers](#-pipeline-layers)
   - [Bronze Layer](#1-bronze-layer--raw-ingestion) · [📓 Notebook](https://github.com/AbenezerYBekele/CMS-Beneficiary-Data/blob/main/Bronze%20Layer%20Cms.ipynb)
   - [Silver Layer](#2-silver-layer--cleansed--reshaped) · [📓 Notebook](https://github.com/AbenezerYBekele/CMS-Beneficiary-Data/blob/main/Silver%20Layer%20CMS.ipynb)
   - [Gold Layer](#3-gold-layer--business-kpis) · [📓 Notebook](https://github.com/AbenezerYBekele/CMS-Beneficiary-Data/blob/main/Gold%20Layer%20CMS.ipynb)
-- [Data Quality](#-data-quality)
-- [Unity Catalog Setup](#-unity-catalog-setup)
-- [Dashboard](#-dashboard)
-- [Key Engineering Decisions](#-key-engineering-decisions)
-- [Results](#-results)
-- [How to Run](#-how-to-run)
-- [Data Dictionary](#-data-dictionary)
-- [Future Enhancements](#-future-enhancements)
-- [License](#-license)
 
 ---
 
