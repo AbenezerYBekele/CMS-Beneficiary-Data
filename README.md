@@ -37,5 +37,3 @@ This project builds a **production-style lakehouse pipeline** that:
 **Scale:** 11 years · 50M+ rows · 200+ raw columns · 23 Delta tables/views · 9 Gold KPIs
 
 ---
-
-## 🏗 Architecture
